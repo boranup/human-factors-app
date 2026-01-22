@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight, CheckCircle, XCircle, Save, Database, List, HelpCircle, Info } from 'lucide-react';
 
-// 🔥 REPLACE WITH YOUR ACTUAL SUPABASE CREDENTIALS
 const SUPABASE_URL = 'https://qpioxbmjmdecbbyawbfj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwaW94Ym1qbWRlY2JieWF3YmZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMzE3MTgsImV4cCI6MjA4NDYwNzcxOH0.OaloqP5Z2tY999x3acEjjQgcafYBvzzAnxxxiAaTsjQ';
 
@@ -71,17 +70,11 @@ class SupabaseClient {
 
 const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Tooltip Component
 const Tooltip = ({ text, children }) => {
   const [show, setShow] = useState(false);
-  
   return (
     <div className="relative inline-block">
-      <div 
-        onMouseEnter={() => setShow(true)} 
-        onMouseLeave={() => setShow(false)}
-        className="cursor-help"
-      >
+      <div onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)} className="cursor-help">
         {children}
       </div>
       {show && (
@@ -94,104 +87,33 @@ const Tooltip = ({ text, children }) => {
   );
 };
 
-// Severity Information Modal/Tooltip
 const SeverityInfo = ({ severity }) => {
   const [show, setShow] = useState(false);
-  
   const severityData = {
-    'Catastrophic': {
-      level: 5,
-      color: 'bg-red-600',
-      people: 'Multiple Fatalities or Multiple Severe Casualties',
-      environment: 'Reportable to authorities, external clean-up support required, typically >1 month to remediate, irreversible or chronic damage',
-      monetary: '>USD 200MM',
-      reputation: 'International concern resulting in irreparable damage to reputation across full spectrum of stakeholders'
-    },
-    'Major': {
-      level: 4,
-      color: 'bg-orange-600',
-      people: 'Single Fatality or Non-fatal casualty with Permanent Disability',
-      environment: 'Reportable to authorities, external clean-up support required, <1 month to remediate, effects are localised',
-      monetary: 'USD 50MM - USD 200MM',
-      reputation: 'National concern and/or media attention. Possible reputation damage with external stakeholders'
-    },
-    'Significant': {
-      level: 3,
-      color: 'bg-yellow-600',
-      people: 'Serious Injury',
-      environment: 'Small controllable impact, remediation with internal local resources requiring limited time',
-      monetary: 'USD 10MM - USD 50MM',
-      reputation: 'Local concern or disruption and/or local media attention'
-    },
-    'Moderate': {
-      level: 2,
-      color: 'bg-blue-600',
-      people: 'Medical Treatment / Restricted Work Case',
-      environment: 'Minimal impact requiring minimal and simple clean-up',
-      monetary: 'USD 1MM - USD 10MM',
-      reputation: 'Limited impact. Local public awareness but no concern'
-    },
-    'Minor': {
-      level: 1,
-      color: 'bg-green-600',
-      people: 'First Aid',
-      environment: 'Non-damaging material requiring minimal clean-up, contained spill, negligible impact',
-      monetary: '<USD 1MM',
-      reputation: 'No / slight impact'
-    }
+    'Catastrophic': { level: 5, color: 'bg-red-600', people: 'Multiple Fatalities or Multiple Severe Casualties', environment: 'Reportable to authorities, external clean-up support required, typically >1 month to remediate, irreversible or chronic damage', monetary: '>USD 200MM', reputation: 'International concern resulting in irreparable damage to reputation across full spectrum of stakeholders' },
+    'Major': { level: 4, color: 'bg-orange-600', people: 'Single Fatality or Non-fatal casualty with Permanent Disability', environment: 'Reportable to authorities, external clean-up support required, <1 month to remediate, effects are localised', monetary: 'USD 50MM - USD 200MM', reputation: 'National concern and/or media attention. Possible reputation damage with external stakeholders' },
+    'Significant': { level: 3, color: 'bg-yellow-600', people: 'Serious Injury', environment: 'Small controllable impact, remediation with internal local resources requiring limited time', monetary: 'USD 10MM - USD 50MM', reputation: 'Local concern or disruption and/or local media attention' },
+    'Moderate': { level: 2, color: 'bg-blue-600', people: 'Medical Treatment / Restricted Work Case', environment: 'Minimal impact requiring minimal and simple clean-up', monetary: 'USD 1MM - USD 10MM', reputation: 'Limited impact. Local public awareness but no concern' },
+    'Minor': { level: 1, color: 'bg-green-600', people: 'First Aid', environment: 'Non-damaging material requiring minimal clean-up, contained spill, negligible impact', monetary: '<USD 1MM', reputation: 'No / slight impact' }
   };
-
   const info = severityData[severity];
   if (!info) return null;
-
   return (
     <div className="relative inline-block ml-2">
-      <button
-        type="button"
-        onMouseEnter={() => setShow(true)}
-        onMouseLeave={() => setShow(false)}
-        className="text-blue-500 hover:text-blue-700"
-      >
+      <button type="button" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)} className="text-blue-500 hover:text-blue-700">
         <Info className="w-4 h-4" />
       </button>
       {show && (
         <div className="absolute z-50 w-96 bg-white border-2 border-gray-300 rounded-lg shadow-xl p-4 left-6 top-0">
           <div className="mb-3">
-            <div className={`inline-block px-3 py-1 rounded text-white text-sm font-semibold ${info.color}`}>
-              Level {info.level}: {severity}
-            </div>
+            <div className={`inline-block px-3 py-1 rounded text-white text-sm font-semibold ${info.color}`}>Level {info.level}: {severity}</div>
           </div>
-          
           <div className="space-y-3 text-xs">
-            <div>
-              <div className="font-semibold text-gray-700 mb-1 flex items-center gap-1">
-                <Users className="w-3 h-3" /> People:
-              </div>
-              <div className="text-gray-600 pl-4">{info.people}</div>
-            </div>
-            
-            <div>
-              <div className="font-semibold text-gray-700 mb-1 flex items-center gap-1">
-                <Shield className="w-3 h-3" /> Environment:
-              </div>
-              <div className="text-gray-600 pl-4">{info.environment}</div>
-            </div>
-            
-            <div>
-              <div className="font-semibold text-gray-700 mb-1 flex items-center gap-1">
-                <Database className="w-3 h-3" /> Monetary Impact:
-              </div>
-              <div className="text-gray-600 pl-4">{info.monetary}</div>
-            </div>
-            
-            <div>
-              <div className="font-semibold text-gray-700 mb-1 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" /> Reputation:
-              </div>
-              <div className="text-gray-600 pl-4">{info.reputation}</div>
-            </div>
+            <div><div className="font-semibold text-gray-700 mb-1 flex items-center gap-1"><Users className="w-3 h-3" /> People:</div><div className="text-gray-600 pl-4">{info.people}</div></div>
+            <div><div className="font-semibold text-gray-700 mb-1 flex items-center gap-1"><Shield className="w-3 h-3" /> Environment:</div><div className="text-gray-600 pl-4">{info.environment}</div></div>
+            <div><div className="font-semibold text-gray-700 mb-1 flex items-center gap-1"><Database className="w-3 h-3" /> Monetary Impact:</div><div className="text-gray-600 pl-4">{info.monetary}</div></div>
+            <div><div className="font-semibold text-gray-700 mb-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> Reputation:</div><div className="text-gray-600 pl-4">{info.reputation}</div></div>
           </div>
-          
           <div className="absolute w-3 h-3 bg-white border-l-2 border-t-2 border-gray-300 transform rotate-45 -left-1.5 top-4"></div>
         </div>
       )}
@@ -207,7 +129,6 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [showIncidentList, setShowIncidentList] = useState(false);
-  
   const [data, setData] = useState({
     incidentDetails: { description: '', date: '', location: '', severity: '', analystName: '' },
     humanFactors: {},
@@ -224,7 +145,6 @@ export default function App() {
   const saveIncident = async () => {
     setSaveStatus('saving');
     setErrorMessage('');
-    
     const incidentData = {
       incident_date: data.incidentDetails.date || null,
       location: data.incidentDetails.location || null,
@@ -236,11 +156,9 @@ export default function App() {
       status: 'draft',
       updated_at: new Date().toISOString()
     };
-
     const result = currentIncidentId 
       ? await supabase.from('incidents').update(incidentData).eq('id', currentIncidentId)
       : await supabase.from('incidents').insert([incidentData]);
-
     if (result.error) {
       setErrorMessage(`Error: ${result.error.message}`);
       setSaveStatus('error');
@@ -255,13 +173,7 @@ export default function App() {
   const loadIncident = (incident) => {
     setCurrentIncidentId(incident.id);
     setData({
-      incidentDetails: {
-        description: incident.description || '',
-        date: incident.incident_date || '',
-        location: incident.location || '',
-        severity: incident.severity || '',
-        analystName: incident.analyst_name || ''
-      },
+      incidentDetails: { description: incident.description || '', date: incident.incident_date || '', location: incident.location || '', severity: incident.severity || '', analystName: incident.analyst_name || '' },
       humanFactors: incident.human_factors || {},
       justCulture: incident.just_culture_assessment || {}
     });
@@ -270,11 +182,7 @@ export default function App() {
 
   const newIncident = () => {
     setCurrentIncidentId(null);
-    setData({
-      incidentDetails: { description: '', date: '', location: '', severity: '', analystName: '' },
-      humanFactors: {},
-      justCulture: { classification: '', justification: '', responseActions: '' }
-    });
+    setData({ incidentDetails: { description: '', date: '', location: '', severity: '', analystName: '' }, humanFactors: {}, justCulture: { classification: '', justification: '', responseActions: '' } });
   };
 
   const updateField = (section, field, value) => {
@@ -282,152 +190,37 @@ export default function App() {
   };
 
   const updateHumanFactor = (category, factorId, rating) => {
-    setData(prev => ({
-      ...prev,
-      humanFactors: {
-        ...prev.humanFactors,
-        [`${category}_${factorId}`]: { ...prev.humanFactors[`${category}_${factorId}`], rating }
-      }
-    }));
+    setData(prev => ({ ...prev, humanFactors: { ...prev.humanFactors, [`${category}_${factorId}`]: { ...prev.humanFactors[`${category}_${factorId}`], rating } } }));
   };
 
   const updateFactorNotes = (category, factorId, notes) => {
-    setData(prev => ({
-      ...prev,
-      humanFactors: {
-        ...prev.humanFactors,
-        [`${category}_${factorId}`]: { ...prev.humanFactors[`${category}_${factorId}`], notes }
-      }
-    }));
+    setData(prev => ({ ...prev, humanFactors: { ...prev.humanFactors, [`${category}_${factorId}`]: { ...prev.humanFactors[`${category}_${factorId}`], notes } } }));
   };
 
   const factors = {
-    individual: {
-      title: "Individual Factors (IOGP 621: 4.2.1)",
-      icon: <Users className="w-5 h-5" />,
-      items: [
-        { 
-          id: 'fatigue', 
-          label: 'Fatigue / Alertness', 
-          taproot: 'Human Engineering', 
-          iogp: '4.2.1.1',
-          tooltip: 'Consider work schedules, shift patterns, rest periods, and whether the individual was adequately rested and alert for the task.'
-        },
-        { 
-          id: 'competency', 
-          label: 'Competency / Training', 
-          taproot: 'Training Deficiency', 
-          iogp: '4.2.1.2',
-          tooltip: 'Assess if the person had appropriate qualifications, training, and experience for the task they were performing.'
-        },
-        { 
-          id: 'situational', 
-          label: 'Situational Awareness', 
-          taproot: 'Management System', 
-          iogp: '4.2.1.3',
-          tooltip: 'Evaluate whether the individual understood the current situation, recognized hazards, and anticipated potential consequences.'
-        },
-        { 
-          id: 'stress', 
-          label: 'Stress / Workload', 
-          taproot: 'Human Engineering', 
-          iogp: '4.2.1.4',
-          tooltip: 'Consider time pressure, task complexity, mental/physical demands, and any personal or organizational stressors present.'
-        },
-        { 
-          id: 'health', 
-          label: 'Physical/Mental Health', 
-          taproot: 'Safeguards', 
-          iogp: '4.2.1.5',
-          tooltip: 'Assess whether physical fitness, mental wellbeing, medication, or health conditions affected the individual\'s performance.'
-        }
-      ]
-    },
-    task: {
-      title: "Task/Work Factors (IOGP 621: 4.2.2)",
-      icon: <Brain className="w-5 h-5" />,
-      items: [
-        { 
-          id: 'procedure', 
-          label: 'Procedure Quality', 
-          taproot: 'Procedure Not Adequate', 
-          iogp: '4.2.2.1',
-          tooltip: 'Evaluate if procedures were available, accurate, easy to follow, and appropriate for the actual working conditions.'
-        },
-        { 
-          id: 'complexity', 
-          label: 'Task Complexity', 
-          taproot: 'Human Engineering', 
-          iogp: '4.2.2.2',
-          tooltip: 'Consider the number of steps, decision points, simultaneous activities, and cognitive demands required by the task.'
-        },
-        { 
-          id: 'time', 
-          label: 'Time Pressure', 
-          taproot: 'Management System', 
-          iogp: '4.2.2.3',
-          tooltip: 'Assess whether deadlines, production targets, or scheduling created pressure that affected decision-making or performance.'
-        },
-        { 
-          id: 'tools', 
-          label: 'Tools/Equipment Design', 
-          taproot: 'Equipment Deficiency', 
-          iogp: '4.2.2.4',
-          tooltip: 'Evaluate if tools and equipment were fit for purpose, properly maintained, ergonomically designed, and had adequate safety features.'
-        },
-        { 
-          id: 'communication', 
-          label: 'Communication', 
-          taproot: 'Communication Problem', 
-          iogp: '4.2.2.5',
-          tooltip: 'Consider clarity of instructions, handovers, team coordination, language barriers, and effectiveness of information exchange.'
-        }
-      ]
-    },
-    organizational: {
-      title: "Organizational Factors (IOGP 621: 4.2.3)",
-      icon: <Shield className="w-5 h-5" />,
-      items: [
-        { 
-          id: 'culture', 
-          label: 'Safety Culture', 
-          taproot: 'Management System', 
-          iogp: '4.2.3.1',
-          tooltip: 'Assess organizational attitudes toward safety, reporting culture, management commitment, and whether safety is prioritized over production.'
-        },
-        { 
-          id: 'resources', 
-          label: 'Resource Allocation', 
-          taproot: 'Management System', 
-          iogp: '4.2.3.2',
-          tooltip: 'Evaluate if adequate people, equipment, time, and budget were provided to complete the work safely and effectively.'
-        },
-        { 
-          id: 'supervision', 
-          label: 'Supervision/Leadership', 
-          taproot: 'Management System', 
-          iogp: '4.2.3.3',
-          tooltip: 'Consider quality of oversight, leadership presence, supervisor competence, and whether appropriate guidance was available when needed.'
-        },
-        { 
-          id: 'planning', 
-          label: 'Work Planning', 
-          taproot: 'Planning/Scheduling', 
-          iogp: '4.2.3.4',
-          tooltip: 'Assess whether the work was properly planned, hazards identified, controls implemented, and coordination with other activities considered.'
-        },
-        { 
-          id: 'change', 
-          label: 'Change Management', 
-          taproot: 'Management of Change', 
-          iogp: '4.2.3.5',
-          tooltip: 'Evaluate if changes to equipment, procedures, personnel, or conditions were properly assessed, communicated, and controlled.'
-        }
-      ]
-    }
+    individual: { title: "Individual Factors (IOGP 621: 4.2.1)", icon: <Users className="w-5 h-5" />, items: [
+      { id: 'fatigue', label: 'Fatigue / Alertness', taproot: 'Human Engineering', iogp: '4.2.1.1', tooltip: 'Consider work schedules, shift patterns, rest periods, and whether the individual was adequately rested and alert for the task.' },
+      { id: 'competency', label: 'Competency / Training', taproot: 'Training Deficiency', iogp: '4.2.1.2', tooltip: 'Assess if the person had appropriate qualifications, training, and experience for the task they were performing.' },
+      { id: 'situational', label: 'Situational Awareness', taproot: 'Management System', iogp: '4.2.1.3', tooltip: 'Evaluate whether the individual understood the current situation, recognized hazards, and anticipated potential consequences.' },
+      { id: 'stress', label: 'Stress / Workload', taproot: 'Human Engineering', iogp: '4.2.1.4', tooltip: 'Consider time pressure, task complexity, mental/physical demands, and any personal or organizational stressors present.' },
+      { id: 'health', label: 'Physical/Mental Health', taproot: 'Safeguards', iogp: '4.2.1.5', tooltip: 'Assess whether physical fitness, mental wellbeing, medication, or health conditions affected the individual\'s performance.' }
+    ]},
+    task: { title: "Task/Work Factors (IOGP 621: 4.2.2)", icon: <Brain className="w-5 h-5" />, items: [
+      { id: 'procedure', label: 'Procedure Quality', taproot: 'Procedure Not Adequate', iogp: '4.2.2.1', tooltip: 'Evaluate if procedures were available, accurate, easy to follow, and appropriate for the actual working conditions.' },
+      { id: 'complexity', label: 'Task Complexity', taproot: 'Human Engineering', iogp: '4.2.2.2', tooltip: 'Consider the number of steps, decision points, simultaneous activities, and cognitive demands required by the task.' },
+      { id: 'time', label: 'Time Pressure', taproot: 'Management System', iogp: '4.2.2.3', tooltip: 'Assess whether deadlines, production targets, or scheduling created pressure that affected decision-making or performance.' },
+      { id: 'tools', label: 'Tools/Equipment Design', taproot: 'Equipment Deficiency', iogp: '4.2.2.4', tooltip: 'Evaluate if tools and equipment were fit for purpose, properly maintained, ergonomically designed, and had adequate safety features.' },
+      { id: 'communication', label: 'Communication', taproot: 'Communication Problem', iogp: '4.2.2.5', tooltip: 'Consider clarity of instructions, handovers, team coordination, language barriers, and effectiveness of information exchange.' }
+    ]},
+    organizational: { title: "Organizational Factors (IOGP 621: 4.2.3)", icon: <Shield className="w-5 h-5" />, items: [
+      { id: 'culture', label: 'Safety Culture', taproot: 'Management System', iogp: '4.2.3.1', tooltip: 'Assess organizational attitudes toward safety, reporting culture, management commitment, and whether safety is prioritized over production.' },
+      { id: 'resources', label: 'Resource Allocation', taproot: 'Management System', iogp: '4.2.3.2', tooltip: 'Evaluate if adequate people, equipment, time, and budget were provided to complete the work safely and effectively.' },
+      { id: 'supervision', label: 'Supervision/Leadership', taproot: 'Management System', iogp: '4.2.3.3', tooltip: 'Consider quality of oversight, leadership presence, supervisor competence, and whether appropriate guidance was available when needed.' },
+      { id: 'planning', label: 'Work Planning', taproot: 'Planning/Scheduling', iogp: '4.2.3.4', tooltip: 'Assess whether the work was properly planned, hazards identified, controls implemented, and coordination with other activities considered.' },
+      { id: 'change', label: 'Change Management', taproot: 'Management of Change', iogp: '4.2.3.5', tooltip: 'Evaluate if changes to equipment, procedures, personnel, or conditions were properly assessed, communicated, and controlled.' }
+    ]}
   };
-
-  if (showIncidentList) {
+if (showIncidentList) {
     return (
       <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
         <div className="mb-6 flex items-center justify-between">
@@ -474,8 +267,7 @@ export default function App() {
               <List className="w-4 h-4" />All ({incidents.length})
             </button>
             <button onClick={saveIncident} disabled={saveStatus === 'saving'} className={`px-4 py-2 rounded flex gap-2 ${
-              saveStatus === 'saved' ? 'bg-green-600 text-white' :
-              saveStatus === 'error' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'
+              saveStatus === 'saved' ? 'bg-green-600 text-white' : saveStatus === 'error' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}>
               {saveStatus === 'saving' ? <><Database className="w-4 h-4 animate-pulse" />Saving</> :
                saveStatus === 'saved' ? <><CheckCircle className="w-4 h-4" />Saved</> :
@@ -643,18 +435,20 @@ export default function App() {
             <div><strong>Location:</strong> {data.incidentDetails.location || 'N/A'}</div>
             <div><strong>Severity:</strong> {data.incidentDetails.severity || 'N/A'}</div>
             <div><strong>Analyst:</strong> {data.incidentDetails.analystName || 'N/A'}</div>
-        <div><strong>Classification:</strong> {data.justCulture.classification || 'N/A'}</div>
-        <div>
-          <strong>Human Factors Identified:</strong>
-          {Object.entries(data.humanFactors).filter(([_, v]) => v.rating).length > 0 ? (
-            <ul className="list-disc ml-5 mt-2">
-              {Object.entries(data.humanFactors).map(([k, v]) => 
-                v.rating ? <li key={k}><strong>{k.replace(/_/g, ' ')}:</strong> {v.notes} <span className="text-gray-600">({v.rating})</span></li> : null
-              )}
-            </ul>
-          ) : <span> None identified</span>}
+            <div><strong>Classification:</strong> {data.justCulture.classification || 'N/A'}</div>
+            <div>
+              <strong>Human Factors Identified:</strong>
+              {Object.entries(data.humanFactors).filter(([_, v]) => v.rating).length > 0 ? (
+                <ul className="list-disc ml-5 mt-2">
+                  {Object.entries(data.humanFactors).map(([k, v]) => 
+                    v.rating ? <li key={k}><strong>{k.replace(/_/g, ' ')}:</strong> {v.notes} <span className="text-gray-600">({v.rating})</span></li> : null
+                  )}
+                </ul>
+              ) : <span> None identified</span>}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
-  )}
-</div>
+  );
+}
