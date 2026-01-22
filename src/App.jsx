@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight, CheckCircle, XCircle, Save, Database, List } from 'lucide-react';
+import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight, CheckCircle, XCircle, Save, Database, List, HelpCircle } from 'lucide-react';
 
-// 🔥 REPLACE THESE WITH YOUR SUPABASE VALUES
+// 🔥 REPLACE WITH YOUR ACTUAL SUPABASE CREDENTIALS
 const SUPABASE_URL = 'https://qpioxbmjmdecbbyawbfj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwaW94Ym1qbWRlY2JieWF3YmZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMzE3MTgsImV4cCI6MjA4NDYwNzcxOH0.OaloqP5Z2tY999x3acEjjQgcafYBvzzAnxxxiAaTsjQ';
 
@@ -70,6 +70,29 @@ class SupabaseClient {
 }
 
 const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Tooltip Component
+const Tooltip = ({ text, children }) => {
+  const [show, setShow] = useState(false);
+  
+  return (
+    <div className="relative inline-block">
+      <div 
+        onMouseEnter={() => setShow(true)} 
+        onMouseLeave={() => setShow(false)}
+        className="cursor-help"
+      >
+        {children}
+      </div>
+      {show && (
+        <div className="absolute z-50 w-64 p-2 text-xs bg-gray-900 text-white rounded shadow-lg -top-2 left-6">
+          {text}
+          <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 -left-1 top-3"></div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('analysis');
@@ -178,33 +201,123 @@ export default function App() {
       title: "Individual Factors (IOGP 621: 4.2.1)",
       icon: <Users className="w-5 h-5" />,
       items: [
-        { id: 'fatigue', label: 'Fatigue / Alertness', taproot: 'Human Engineering', iogp: '4.2.1.1' },
-        { id: 'competency', label: 'Competency / Training', taproot: 'Training Deficiency', iogp: '4.2.1.2' },
-        { id: 'situational', label: 'Situational Awareness', taproot: 'Management System', iogp: '4.2.1.3' },
-        { id: 'stress', label: 'Stress / Workload', taproot: 'Human Engineering', iogp: '4.2.1.4' },
-        { id: 'health', label: 'Physical/Mental Health', taproot: 'Safeguards', iogp: '4.2.1.5' }
+        { 
+          id: 'fatigue', 
+          label: 'Fatigue / Alertness', 
+          taproot: 'Human Engineering', 
+          iogp: '4.2.1.1',
+          tooltip: 'Consider work schedules, shift patterns, rest periods, and whether the individual was adequately rested and alert for the task.'
+        },
+        { 
+          id: 'competency', 
+          label: 'Competency / Training', 
+          taproot: 'Training Deficiency', 
+          iogp: '4.2.1.2',
+          tooltip: 'Assess if the person had appropriate qualifications, training, and experience for the task they were performing.'
+        },
+        { 
+          id: 'situational', 
+          label: 'Situational Awareness', 
+          taproot: 'Management System', 
+          iogp: '4.2.1.3',
+          tooltip: 'Evaluate whether the individual understood the current situation, recognized hazards, and anticipated potential consequences.'
+        },
+        { 
+          id: 'stress', 
+          label: 'Stress / Workload', 
+          taproot: 'Human Engineering', 
+          iogp: '4.2.1.4',
+          tooltip: 'Consider time pressure, task complexity, mental/physical demands, and any personal or organizational stressors present.'
+        },
+        { 
+          id: 'health', 
+          label: 'Physical/Mental Health', 
+          taproot: 'Safeguards', 
+          iogp: '4.2.1.5',
+          tooltip: 'Assess whether physical fitness, mental wellbeing, medication, or health conditions affected the individual\'s performance.'
+        }
       ]
     },
     task: {
       title: "Task/Work Factors (IOGP 621: 4.2.2)",
       icon: <Brain className="w-5 h-5" />,
       items: [
-        { id: 'procedure', label: 'Procedure Quality', taproot: 'Procedure Not Adequate', iogp: '4.2.2.1' },
-        { id: 'complexity', label: 'Task Complexity', taproot: 'Human Engineering', iogp: '4.2.2.2' },
-        { id: 'time', label: 'Time Pressure', taproot: 'Management System', iogp: '4.2.2.3' },
-        { id: 'tools', label: 'Tools/Equipment Design', taproot: 'Equipment Deficiency', iogp: '4.2.2.4' },
-        { id: 'communication', label: 'Communication', taproot: 'Communication Problem', iogp: '4.2.2.5' }
+        { 
+          id: 'procedure', 
+          label: 'Procedure Quality', 
+          taproot: 'Procedure Not Adequate', 
+          iogp: '4.2.2.1',
+          tooltip: 'Evaluate if procedures were available, accurate, easy to follow, and appropriate for the actual working conditions.'
+        },
+        { 
+          id: 'complexity', 
+          label: 'Task Complexity', 
+          taproot: 'Human Engineering', 
+          iogp: '4.2.2.2',
+          tooltip: 'Consider the number of steps, decision points, simultaneous activities, and cognitive demands required by the task.'
+        },
+        { 
+          id: 'time', 
+          label: 'Time Pressure', 
+          taproot: 'Management System', 
+          iogp: '4.2.2.3',
+          tooltip: 'Assess whether deadlines, production targets, or scheduling created pressure that affected decision-making or performance.'
+        },
+        { 
+          id: 'tools', 
+          label: 'Tools/Equipment Design', 
+          taproot: 'Equipment Deficiency', 
+          iogp: '4.2.2.4',
+          tooltip: 'Evaluate if tools and equipment were fit for purpose, properly maintained, ergonomically designed, and had adequate safety features.'
+        },
+        { 
+          id: 'communication', 
+          label: 'Communication', 
+          taproot: 'Communication Problem', 
+          iogp: '4.2.2.5',
+          tooltip: 'Consider clarity of instructions, handovers, team coordination, language barriers, and effectiveness of information exchange.'
+        }
       ]
     },
     organizational: {
       title: "Organizational Factors (IOGP 621: 4.2.3)",
       icon: <Shield className="w-5 h-5" />,
       items: [
-        { id: 'culture', label: 'Safety Culture', taproot: 'Management System', iogp: '4.2.3.1' },
-        { id: 'resources', label: 'Resource Allocation', taproot: 'Management System', iogp: '4.2.3.2' },
-        { id: 'supervision', label: 'Supervision/Leadership', taproot: 'Management System', iogp: '4.2.3.3' },
-        { id: 'planning', label: 'Work Planning', taproot: 'Planning/Scheduling', iogp: '4.2.3.4' },
-        { id: 'change', label: 'Change Management', taproot: 'Management of Change', iogp: '4.2.3.5' }
+        { 
+          id: 'culture', 
+          label: 'Safety Culture', 
+          taproot: 'Management System', 
+          iogp: '4.2.3.1',
+          tooltip: 'Assess organizational attitudes toward safety, reporting culture, management commitment, and whether safety is prioritized over production.'
+        },
+        { 
+          id: 'resources', 
+          label: 'Resource Allocation', 
+          taproot: 'Management System', 
+          iogp: '4.2.3.2',
+          tooltip: 'Evaluate if adequate people, equipment, time, and budget were provided to complete the work safely and effectively.'
+        },
+        { 
+          id: 'supervision', 
+          label: 'Supervision/Leadership', 
+          taproot: 'Management System', 
+          iogp: '4.2.3.3',
+          tooltip: 'Consider quality of oversight, leadership presence, supervisor competence, and whether appropriate guidance was available when needed.'
+        },
+        { 
+          id: 'planning', 
+          label: 'Work Planning', 
+          taproot: 'Planning/Scheduling', 
+          iogp: '4.2.3.4',
+          tooltip: 'Assess whether the work was properly planned, hazards identified, controls implemented, and coordination with other activities considered.'
+        },
+        { 
+          id: 'change', 
+          label: 'Change Management', 
+          taproot: 'Management of Change', 
+          iogp: '4.2.3.5',
+          tooltip: 'Evaluate if changes to equipment, procedures, personnel, or conditions were properly assessed, communicated, and controlled.'
+        }
       ]
     }
   };
@@ -344,9 +457,14 @@ export default function App() {
                   {cat.items.map(item => (
                     <div key={item.id} className="border-l-4 border-blue-500 pl-4 py-2">
                       <div className="flex justify-between mb-2">
-                        <div>
-                          <div className="font-medium text-sm">{item.label}</div>
-                          <div className="text-xs text-gray-600">IOGP: {item.iogp} | TapRooT®: {item.taproot}</div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm">{item.label}</span>
+                            <Tooltip text={item.tooltip}>
+                              <HelpCircle className="w-4 h-4 text-blue-500" />
+                            </Tooltip>
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1">IOGP: {item.iogp} | TapRooT®: {item.taproot}</div>
                         </div>
                         <div className="flex gap-2">
                           <button onClick={() => updateHumanFactor(key, item.id, 'contributing')} 
@@ -363,6 +481,7 @@ export default function App() {
                       </div>
                       <textarea value={data.humanFactors[`${key}_${item.id}`]?.notes || ''} 
                         className="w-full text-sm border rounded px-3 py-2" rows="2"
+                        placeholder="Describe how this factor contributed to the incident..."
                         onChange={(e) => updateFactorNotes(key, item.id, e.target.value)} />
                     </div>
                   ))}
@@ -425,5 +544,3 @@ export default function App() {
     </div>
   );
 }
-
-
