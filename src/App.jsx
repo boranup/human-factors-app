@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight, CheckCircle, XCircle, Save, Database, List } from 'lucide-react';
 
 // 🔥 REPLACE THESE WITH YOUR SUPABASE VALUES
-const SUPABASE_URL = 'https://epabheqggsudcwsvflat.supabase.co';
+const SUPABASE_URL = 'https://qpioxbmjmdecbbyawbfj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwaW94Ym1qbWRlY2JieWF3YmZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMzE3MTgsImV4cCI6MjA4NDYwNzcxOH0.OaloqP5Z2tY999x3acEjjQgcafYBvzzAnxxxiAaTsjQ';
 
 class SupabaseClient {
@@ -425,4 +425,5 @@ export default function App() {
     </div>
   );
 }
+
 
