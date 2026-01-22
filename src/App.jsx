@@ -3,7 +3,7 @@ import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight,
 
 // 🔥 REPLACE THESE WITH YOUR SUPABASE VALUES
 const SUPABASE_URL = 'https://epabheqggsudcwsvflat.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwYWJoZXFnZ3N1ZGN3c3ZmbGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4ODQ1NTQsImV4cCI6MjA4NDQ2MDU1NH0.ngStHGMAPfZPduWmE4B3zTZVuIuttYNHmRXDGSEQ5p8';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwaW94Ym1qbWRlY2JieWF3YmZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMzE3MTgsImV4cCI6MjA4NDYwNzcxOH0.OaloqP5Z2tY999x3acEjjQgcafYBvzzAnxxxiAaTsjQ';
 
 class SupabaseClient {
   constructor(url, key) {
@@ -425,3 +425,4 @@ export default function App() {
     </div>
   );
 }
+
