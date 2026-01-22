@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight, CheckCircle, XCircle, Save, Database, List, HelpCircle, Info } from 'lucide-react';
+import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight, CheckCircle, XCircle, Save, Database, List, HelpCircle, Info, Plus, Trash2 } from 'lucide-react';
 
 const SUPABASE_URL = 'https://qpioxbmjmdecbbyawbfj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwaW94Ym1qbWRlY2JieWF3YmZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMzE3MTgsImV4cCI6MjA4NDYwNzcxOH0.OaloqP5Z2tY999x3acEjjQgcafYBvzzAnxxxiAaTsjQ';
@@ -123,7 +123,6 @@ const SeverityInfo = ({ severity }) => {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('analysis');
-  const [expandedSections, setExpandedSections] = useState({});
   const [incidents, setIncidents] = useState([]);
   const [currentIncidentId, setCurrentIncidentId] = useState(null);
   const [saveStatus, setSaveStatus] = useState('');
@@ -131,8 +130,7 @@ export default function App() {
   const [showIncidentList, setShowIncidentList] = useState(false);
   const [data, setData] = useState({
     incidentDetails: { description: '', date: '', location: '', severity: '', analystName: '' },
-    humanFactors: {},
-    justCulture: { classification: '', justification: '', responseActions: '' }
+    causalFactors: []
   });
 
   useEffect(() => { loadIncidents(); }, []);
@@ -151,8 +149,7 @@ export default function App() {
       severity: data.incidentDetails.severity || null,
       description: data.incidentDetails.description || null,
       analyst_name: data.incidentDetails.analystName || null,
-      human_factors: data.humanFactors || {},
-      just_culture_assessment: data.justCulture || {},
+      human_factors: { causalFactors: data.causalFactors },
       status: 'draft',
       updated_at: new Date().toISOString()
     };
@@ -173,31 +170,112 @@ export default function App() {
   const loadIncident = (incident) => {
     setCurrentIncidentId(incident.id);
     setData({
-      incidentDetails: { description: incident.description || '', date: incident.incident_date || '', location: incident.location || '', severity: incident.severity || '', analystName: incident.analyst_name || '' },
-      humanFactors: incident.human_factors || {},
-      justCulture: incident.just_culture_assessment || {}
+      incidentDetails: { 
+        description: incident.description || '', 
+        date: incident.incident_date || '', 
+        location: incident.location || '', 
+        severity: incident.severity || '', 
+        analystName: incident.analyst_name || '' 
+      },
+      causalFactors: incident.human_factors?.causalFactors || []
     });
     setShowIncidentList(false);
   };
 
   const newIncident = () => {
     setCurrentIncidentId(null);
-    setData({ incidentDetails: { description: '', date: '', location: '', severity: '', analystName: '' }, humanFactors: {}, justCulture: { classification: '', justification: '', responseActions: '' } });
+    setData({ 
+      incidentDetails: { description: '', date: '', location: '', severity: '', analystName: '' }, 
+      causalFactors: [] 
+    });
   };
 
   const updateField = (section, field, value) => {
     setData(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
   };
 
-  const updateHumanFactor = (category, factorId, rating) => {
-    setData(prev => ({ ...prev, humanFactors: { ...prev.humanFactors, [`${category}_${factorId}`]: { ...prev.humanFactors[`${category}_${factorId}`], rating } } }));
+  const addCausalFactor = () => {
+    const newFactor = {
+      id: Date.now(),
+      description: '',
+      humanFactors: {},
+      justCulture: { classification: '', justification: '', responseActions: '' },
+      expandedSections: {}
+    };
+    setData(prev => ({ ...prev, causalFactors: [...prev.causalFactors, newFactor] }));
   };
 
-  const updateFactorNotes = (category, factorId, notes) => {
-    setData(prev => ({ ...prev, humanFactors: { ...prev.humanFactors, [`${category}_${factorId}`]: { ...prev.humanFactors[`${category}_${factorId}`], notes } } }));
+  const removeCausalFactor = (factorId) => {
+    setData(prev => ({ 
+      ...prev, 
+      causalFactors: prev.causalFactors.filter(f => f.id !== factorId) 
+    }));
   };
 
-  const factors = {
+  const updateCausalFactorDescription = (factorId, description) => {
+    setData(prev => ({
+      ...prev,
+      causalFactors: prev.causalFactors.map(f => 
+        f.id === factorId ? { ...f, description } : f
+      )
+    }));
+  };
+
+  const updateHumanFactor = (factorId, category, itemId, rating) => {
+    setData(prev => ({
+      ...prev,
+      causalFactors: prev.causalFactors.map(f => 
+        f.id === factorId ? {
+          ...f,
+          humanFactors: {
+            ...f.humanFactors,
+            [`${category}_${itemId}`]: { ...f.humanFactors[`${category}_${itemId}`], rating }
+          }
+        } : f
+      )
+    }));
+  };
+
+  const updateFactorNotes = (factorId, category, itemId, notes) => {
+    setData(prev => ({
+      ...prev,
+      causalFactors: prev.causalFactors.map(f => 
+        f.id === factorId ? {
+          ...f,
+          humanFactors: {
+            ...f.humanFactors,
+            [`${category}_${itemId}`]: { ...f.humanFactors[`${category}_${itemId}`], notes }
+          }
+        } : f
+      )
+    }));
+  };
+
+  const toggleCausalFactorSection = (factorId, section) => {
+    setData(prev => ({
+      ...prev,
+      causalFactors: prev.causalFactors.map(f => 
+        f.id === factorId ? {
+          ...f,
+          expandedSections: { ...f.expandedSections, [section]: !f.expandedSections[section] }
+        } : f
+      )
+    }));
+  };
+
+  const updateJustCulture = (factorId, field, value) => {
+    setData(prev => ({
+      ...prev,
+      causalFactors: prev.causalFactors.map(f => 
+        f.id === factorId ? {
+          ...f,
+          justCulture: { ...f.justCulture, [field]: value }
+        } : f
+      )
+    }));
+  };
+
+  const factorCategories = {
     individual: { title: "Individual Factors (IOGP 621: 4.2.1)", icon: <Users className="w-5 h-5" />, items: [
       { id: 'fatigue', label: 'Fatigue / Alertness', taproot: 'Human Engineering', iogp: '4.2.1.1', tooltip: 'Consider work schedules, shift patterns, rest periods, and whether the individual was adequately rested and alert for the task.' },
       { id: 'competency', label: 'Competency / Training', taproot: 'Training Deficiency', iogp: '4.2.1.2', tooltip: 'Assess if the person had appropriate qualifications, training, and experience for the task they were performing.' },
@@ -288,7 +366,6 @@ if (showIncidentList) {
         <div className="flex border-b">
           {[
             { id: 'analysis', label: 'Analysis', icon: <Brain className="w-4 h-4" /> },
-            { id: 'justculture', label: 'Just Culture', icon: <Shield className="w-4 h-4" /> },
             { id: 'report', label: 'Report', icon: <FileText className="w-4 h-4" /> }
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex-1 px-6 py-3 flex items-center justify-center gap-2 ${
@@ -346,106 +423,203 @@ if (showIncidentList) {
             </div>
           </div>
 
-          {Object.entries(factors).map(([key, cat]) => (
-            <div key={key} className="bg-white border rounded">
-              <button onClick={() => setExpandedSections(p => ({...p, [key]: !p[key]}))} 
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50">
-                <div className="flex items-center gap-3">
-                  {cat.icon}
-                  <h3 className="font-semibold">{cat.title}</h3>
-                </div>
-                {expandedSections[key] ? <ChevronDown /> : <ChevronRight />}
+          <div className="bg-white border rounded p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold">Causal Factors</h3>
+              <button onClick={addCausalFactor} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Add Causal Factor
               </button>
-              {expandedSections[key] && (
-                <div className="p-4 border-t space-y-4">
-                  {cat.items.map(item => (
-                    <div key={item.id} className="border-l-4 border-blue-500 pl-4 py-2">
-                      <div className="flex justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm">{item.label}</span>
-                            <Tooltip text={item.tooltip}>
-                              <HelpCircle className="w-4 h-4 text-blue-500" />
-                            </Tooltip>
-                          </div>
-                          <div className="text-xs text-gray-600 mt-1">IOGP: {item.iogp} | TapRooT®: {item.taproot}</div>
+            </div>
+            
+            {data.causalFactors.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No causal factors added yet. Click "Add Causal Factor" to begin analysis.
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {data.causalFactors.map((factor, index) => (
+                  <div key={factor.id} className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <label className="block text-sm font-semibold mb-2 text-blue-900">
+                          Causal Factor {index + 1}
+                        </label>
+                        <textarea
+                          value={factor.description}
+                          onChange={(e) => updateCausalFactorDescription(factor.id, e.target.value)}
+                          className="w-full border rounded px-3 py-2"
+                          rows="2"
+                          placeholder="Describe this causal factor..."
+                        />
+                      </div>
+                      <button
+                        onClick={() => removeCausalFactor(factor.id)}
+                        className="ml-3 p-2 text-red-600 hover:bg-red-100 rounded"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {Object.entries(factorCategories).map(([key, cat]) => (
+                        <div key={key} className="bg-white border rounded">
+                          <button 
+                            onClick={() => toggleCausalFactorSection(factor.id, key)} 
+                            className="w-full flex items-center justify-between p-3 hover:bg-gray-50">
+                            <div className="flex items-center gap-3">
+                              {cat.icon}
+                              <h4 className="font-semibold text-sm">{cat.title}</h4>
+                            </div>
+                            {factor.expandedSections[key] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                          </button>
+                          {factor.expandedSections[key] && (
+                            <div className="p-3 border-t space-y-3">
+                              {cat.items.map(item => (
+                                <div key={item.id} className="border-l-4 border-blue-500 pl-3 py-2">
+                                  <div className="flex justify-between mb-2">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-medium text-sm">{item.label}</span>
+                                        <Tooltip text={item.tooltip}>
+                                          <HelpCircle className="w-4 h-4 text-blue-500" />
+                                        </Tooltip>
+                                      </div>
+                                      <div className="text-xs text-gray-600 mt-1">IOGP: {item.iogp} | TapRooT®: {item.taproot}</div>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <button onClick={() => updateHumanFactor(factor.id, key, item.id, 'contributing')} 
+                                        className={`px-3 py-1 text-xs rounded ${
+                                          factor.humanFactors[`${key}_${item.id}`]?.rating === 'contributing' ? 
+                                          'bg-orange-500 text-white' : 'bg-orange-100 text-orange-700'
+                                        }`}>Contributing</button>
+                                      <button onClick={() => updateHumanFactor(factor.id, key, item.id, 'causal')} 
+                                        className={`px-3 py-1 text-xs rounded ${
+                                          factor.humanFactors[`${key}_${item.id}`]?.rating === 'causal' ? 
+                                          'bg-red-500 text-white' : 'bg-red-100 text-red-700'
+                                        }`}>Causal</button>
+                                    </div>
+                                  </div>
+                                  <textarea 
+                                    value={factor.humanFactors[`${key}_${item.id}`]?.notes || ''} 
+                                    className="w-full text-sm border rounded px-3 py-2" 
+                                    rows="2"
+                                    placeholder="Describe how this factor contributed..."
+                                    onChange={(e) => updateFactorNotes(factor.id, key, item.id, e.target.value)} />
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                        <div className="flex gap-2">
-                          <button onClick={() => updateHumanFactor(key, item.id, 'contributing')} 
-                            className={`px-3 py-1 text-xs rounded ${
-                              data.humanFactors[`${key}_${item.id}`]?.rating === 'contributing' ? 
-                              'bg-orange-500 text-white' : 'bg-orange-100 text-orange-700'
-                            }`}>Contributing</button>
-                          <button onClick={() => updateHumanFactor(key, item.id, 'causal')} 
-                            className={`px-3 py-1 text-xs rounded ${
-                              data.humanFactors[`${key}_${item.id}`]?.rating === 'causal' ? 
-                              'bg-red-500 text-white' : 'bg-red-100 text-red-700'
-                            }`}>Causal</button>
+                      ))}
+
+                      <div className="bg-white border rounded p-3">
+                        <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                          <Shield className="w-4 h-4" />
+                          Just Culture Assessment (Optional)
+                        </h4>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-xs font-medium mb-1">Classification</label>
+                            <select 
+                              value={factor.justCulture.classification} 
+                              className="w-full border rounded px-2 py-1 text-sm"
+                              onChange={(e) => updateJustCulture(factor.id, 'classification', e.target.value)}>
+                              <option value="">Select...</option>
+                              <option>Human Error</option>
+                              <option>At-Risk Behavior</option>
+                              <option>Reckless Behavior</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium mb-1">Justification</label>
+                            <textarea 
+                              value={factor.justCulture.justification} 
+                              className="w-full border rounded px-2 py-1 text-sm" 
+                              rows="2"
+                              placeholder="Document reasoning..."
+                              onChange={(e) => updateJustCulture(factor.id, 'justification', e.target.value)} />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium mb-1">Response Actions</label>
+                            <textarea 
+                              value={factor.justCulture.responseActions} 
+                              className="w-full border rounded px-2 py-1 text-sm" 
+                              rows="2"
+                              placeholder="Recommended actions..."
+                              onChange={(e) => updateJustCulture(factor.id, 'responseActions', e.target.value)} />
+                          </div>
                         </div>
                       </div>
-                      <textarea value={data.humanFactors[`${key}_${item.id}`]?.notes || ''} 
-                        className="w-full text-sm border rounded px-3 py-2" rows="2"
-                        placeholder="Describe how this factor contributed to the incident..."
-                        onChange={(e) => updateFactorNotes(key, item.id, e.target.value)} />
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {activeTab === 'justculture' && (
-        <div className="bg-white border rounded p-6">
-          <h3 className="font-semibold mb-4">Just Culture Assessment</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block font-medium mb-2">Classification</label>
-              <select value={data.justCulture.classification} className="w-full border rounded px-3 py-2"
-                onChange={(e) => updateField('justCulture', 'classification', e.target.value)}>
-                <option value="">Select...</option>
-                <option>Human Error</option>
-                <option>At-Risk Behavior</option>
-                <option>Reckless Behavior</option>
-              </select>
-            </div>
-            <div>
-              <label className="block font-medium mb-2">Justification</label>
-              <textarea value={data.justCulture.justification} className="w-full border rounded px-3 py-2" rows="4"
-                placeholder="Document the evidence and reasoning for this classification..."
-                onChange={(e) => updateField('justCulture', 'justification', e.target.value)} />
-            </div>
-            <div>
-              <label className="block font-medium mb-2">Response Actions</label>
-              <textarea value={data.justCulture.responseActions} className="w-full border rounded px-3 py-2" rows="3"
-                placeholder="List specific actions: coaching sessions, system improvements, procedural changes..."
-                onChange={(e) => updateField('justCulture', 'responseActions', e.target.value)} />
-            </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {activeTab === 'report' && (
         <div className="bg-white border rounded p-6">
-          <h3 className="font-semibold mb-4">Analysis Summary</h3>
-          <div className="space-y-4 text-sm">
-            <div><strong>Description:</strong> {data.incidentDetails.description || 'N/A'}</div>
-            <div><strong>Date:</strong> {data.incidentDetails.date || 'N/A'}</div>
-            <div><strong>Location:</strong> {data.incidentDetails.location || 'N/A'}</div>
-            <div><strong>Severity:</strong> {data.incidentDetails.severity || 'N/A'}</div>
-            <div><strong>Analyst:</strong> {data.incidentDetails.analystName || 'N/A'}</div>
-            <div><strong>Classification:</strong> {data.justCulture.classification || 'N/A'}</div>
-            <div>
-              <strong>Human Factors Identified:</strong>
-              {Object.entries(data.humanFactors).filter(([_, v]) => v.rating).length > 0 ? (
-                <ul className="list-disc ml-5 mt-2">
-                  {Object.entries(data.humanFactors).map(([k, v]) => 
-                    v.rating ? <li key={k}><strong>{k.replace(/_/g, ' ')}:</strong> {v.notes} <span className="text-gray-600">({v.rating})</span></li> : null
-                  )}
-                </ul>
-              ) : <span> None identified</span>}
+          <h3 className="font-semibold text-lg mb-4">Analysis Summary Report</h3>
+          
+          <div className="space-y-6 text-sm">
+            <div className="border-b pb-4">
+              <h4 className="font-semibold mb-2">Incident Details</h4>
+              <div className="space-y-1">
+                <div><strong>Description:</strong> {data.incidentDetails.description || 'N/A'}</div>
+                <div><strong>Date:</strong> {data.incidentDetails.date || 'N/A'}</div>
+                <div><strong>Location:</strong> {data.incidentDetails.location || 'N/A'}</div>
+                <div><strong>Severity:</strong> {data.incidentDetails.severity || 'N/A'}</div>
+                <div><strong>Analyst:</strong> {data.incidentDetails.analystName || 'N/A'}</div>
+              </div>
             </div>
+
+            {data.causalFactors.length === 0 ? (
+              <div className="text-gray-500 italic">No causal factors analyzed yet.</div>
+            ) : (
+              data.causalFactors.map((factor, index) => (
+                <div key={factor.id} className="border-b pb-4">
+                  <h4 className="font-semibold mb-2 text-blue-900">Causal Factor {index + 1}</h4>
+                  <div className="mb-3">
+                    <strong>Description:</strong> {factor.description || 'Not provided'}
+                  </div>
+
+                  <div className="mb-3">
+                    <strong>Human Factors Identified:</strong>
+                    {Object.entries(factor.humanFactors).filter(([_, v]) => v.rating).length > 0 ? (
+                      <ul className="list-disc ml-5 mt-2 space-y-1">
+                        {Object.entries(factor.humanFactors).map(([k, v]) => 
+                          v.rating ? (
+                            <li key={k}>
+                              <strong>{k.replace(/_/g, ' ')}:</strong> {v.notes} 
+                              <span className={`ml-2 px-2 py-0.5 rounded text-xs ${
+                                v.rating === 'causal' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
+                              }`}>
+                                {v.rating}
+                              </span>
+                            </li>
+                          ) : null
+                        )}
+                      </ul>
+                    ) : <span className="text-gray-500"> None identified</span>}
+                  </div>
+
+                  {factor.justCulture.classification && (
+                    <div className="bg-gray-50 p-3 rounded mt-3">
+                      <div><strong>Just Culture Classification:</strong> {factor.justCulture.classification}</div>
+                      {factor.justCulture.justification && (
+                        <div className="mt-2"><strong>Justification:</strong> {factor.justCulture.justification}</div>
+                      )}
+                      {factor.justCulture.responseActions && (
+                        <div className="mt-2"><strong>Response Actions:</strong> {factor.justCulture.responseActions}</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
