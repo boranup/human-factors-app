@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight, CheckCircle, XCircle, Save, Database, List, HelpCircle, Info, Plus, Trash2 } from 'lucide-react';
+import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight, CheckCircle, XCircle, Save, Database, List, HelpCircle, Info, Plus, Trash2, Target } from 'lucide-react';
 
 const SUPABASE_URL = 'https://qpioxbmjmdecbbyawbfj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwaW94Ym1qbWRlY2JieWF3YmZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMzE3MTgsImV4cCI6MjA4NDYwNzcxOH0.OaloqP5Z2tY999x3acEjjQgcafYBvzzAnxxxiAaTsjQ';
@@ -198,8 +198,15 @@ export default function App() {
     const newFactor = {
       id: Date.now(),
       description: '',
+      isExpanded: false,
       humanFactors: {},
       justCulture: { classification: '', justification: '', responseActions: '' },
+      hop: { 
+        errorPrecursors: '',
+        systemDefenses: '',
+        vulnerabilities: '',
+        recommendations: ''
+      },
       expandedSections: {}
     };
     setData(prev => ({ ...prev, causalFactors: [...prev.causalFactors, newFactor] }));
@@ -209,6 +216,15 @@ export default function App() {
     setData(prev => ({ 
       ...prev, 
       causalFactors: prev.causalFactors.filter(f => f.id !== factorId) 
+    }));
+  };
+
+  const toggleCausalFactor = (factorId) => {
+    setData(prev => ({
+      ...prev,
+      causalFactors: prev.causalFactors.map(f => 
+        f.id === factorId ? { ...f, isExpanded: !f.isExpanded } : f
+      )
     }));
   };
 
@@ -270,6 +286,18 @@ export default function App() {
         f.id === factorId ? {
           ...f,
           justCulture: { ...f.justCulture, [field]: value }
+        } : f
+      )
+    }));
+  };
+
+  const updateHOP = (factorId, field, value) => {
+    setData(prev => ({
+      ...prev,
+      causalFactors: prev.causalFactors.map(f => 
+        f.id === factorId ? {
+          ...f,
+          hop: { ...f.hop, [field]: value }
         } : f
       )
     }));
@@ -337,7 +365,7 @@ if (showIncidentList) {
             <AlertCircle className="w-8 h-8 text-blue-600" />
             <div>
               <h1 className="text-3xl font-bold">Human Factors Analysis</h1>
-              <p className="text-sm text-gray-600">IOGP 621 | Just Culture</p>
+              <p className="text-sm text-gray-600">IOGP 621 | Just Culture | HOP</p>
             </div>
           </div>
           <div className="flex gap-3">
@@ -437,120 +465,199 @@ if (showIncidentList) {
                 No causal factors added yet. Click "Add Causal Factor" to begin analysis.
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {data.causalFactors.map((factor, index) => (
-                  <div key={factor.id} className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <label className="block text-sm font-semibold mb-2 text-blue-900">
-                          Causal Factor {index + 1}
-                        </label>
-                        <textarea
-                          value={factor.description}
-                          onChange={(e) => updateCausalFactorDescription(factor.id, e.target.value)}
-                          className="w-full border rounded px-3 py-2"
-                          rows="2"
-                          placeholder="Describe this causal factor..."
-                        />
-                      </div>
-                      <button
-                        onClick={() => removeCausalFactor(factor.id)}
-                        className="ml-3 p-2 text-red-600 hover:bg-red-100 rounded"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    <div className="space-y-3">
-                      {Object.entries(factorCategories).map(([key, cat]) => (
-                        <div key={key} className="bg-white border rounded">
-                          <button 
-                            onClick={() => toggleCausalFactorSection(factor.id, key)} 
-                            className="w-full flex items-center justify-between p-3 hover:bg-gray-50">
-                            <div className="flex items-center gap-3">
-                              {cat.icon}
-                              <h4 className="font-semibold text-sm">{cat.title}</h4>
-                            </div>
-                            {factor.expandedSections[key] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  <div key={factor.id} className="border-2 border-blue-200 rounded-lg bg-blue-50">
+                    <div className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <label className="block text-sm font-semibold mb-2 text-blue-900">
+                            Causal Factor {index + 1}
+                          </label>
+                          <textarea
+                            value={factor.description}
+                            onChange={(e) => updateCausalFactorDescription(factor.id, e.target.value)}
+                            className="w-full border rounded px-3 py-2"
+                            rows="2"
+                            placeholder="Describe this causal factor..."
+                          />
+                        </div>
+                        <div className="flex gap-2 ml-3">
+                          <button
+                            onClick={() => toggleCausalFactor(factor.id)}
+                            className="p-2 text-blue-600 hover:bg-blue-100 rounded"
+                            title={factor.isExpanded ? "Collapse" : "Expand"}
+                          >
+                            {factor.isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
                           </button>
-                          {factor.expandedSections[key] && (
-                            <div className="p-3 border-t space-y-3">
-                              {cat.items.map(item => (
-                                <div key={item.id} className="border-l-4 border-blue-500 pl-3 py-2">
-                                  <div className="flex justify-between mb-2">
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-medium text-sm">{item.label}</span>
-                                        <Tooltip text={item.tooltip}>
-                                          <HelpCircle className="w-4 h-4 text-blue-500" />
-                                        </Tooltip>
-                                      </div>
-                                      <div className="text-xs text-gray-600 mt-1">IOGP: {item.iogp} | TapRooT®: {item.taproot}</div>
-                                    </div>
-                                    <div className="flex gap-2">
-                                      <button onClick={() => updateHumanFactor(factor.id, key, item.id, 'contributing')} 
-                                        className={`px-3 py-1 text-xs rounded ${
-                                          factor.humanFactors[`${key}_${item.id}`]?.rating === 'contributing' ? 
-                                          'bg-orange-500 text-white' : 'bg-orange-100 text-orange-700'
-                                        }`}>Contributing</button>
-                                      <button onClick={() => updateHumanFactor(factor.id, key, item.id, 'causal')} 
-                                        className={`px-3 py-1 text-xs rounded ${
-                                          factor.humanFactors[`${key}_${item.id}`]?.rating === 'causal' ? 
-                                          'bg-red-500 text-white' : 'bg-red-100 text-red-700'
-                                        }`}>Causal</button>
-                                    </div>
-                                  </div>
-                                  <textarea 
-                                    value={factor.humanFactors[`${key}_${item.id}`]?.notes || ''} 
-                                    className="w-full text-sm border rounded px-3 py-2" 
-                                    rows="2"
-                                    placeholder="Describe how this factor contributed..."
-                                    onChange={(e) => updateFactorNotes(factor.id, key, item.id, e.target.value)} />
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-
-                      <div className="bg-white border rounded p-3">
-                        <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                          <Shield className="w-4 h-4" />
-                          Just Culture Assessment (Optional)
-                        </h4>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-xs font-medium mb-1">Classification</label>
-                            <select 
-                              value={factor.justCulture.classification} 
-                              className="w-full border rounded px-2 py-1 text-sm"
-                              onChange={(e) => updateJustCulture(factor.id, 'classification', e.target.value)}>
-                              <option value="">Select...</option>
-                              <option>Human Error</option>
-                              <option>At-Risk Behavior</option>
-                              <option>Reckless Behavior</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium mb-1">Justification</label>
-                            <textarea 
-                              value={factor.justCulture.justification} 
-                              className="w-full border rounded px-2 py-1 text-sm" 
-                              rows="2"
-                              placeholder="Document reasoning..."
-                              onChange={(e) => updateJustCulture(factor.id, 'justification', e.target.value)} />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium mb-1">Response Actions</label>
-                            <textarea 
-                              value={factor.justCulture.responseActions} 
-                              className="w-full border rounded px-2 py-1 text-sm" 
-                              rows="2"
-                              placeholder="Recommended actions..."
-                              onChange={(e) => updateJustCulture(factor.id, 'responseActions', e.target.value)} />
-                          </div>
+                          <button
+                            onClick={() => removeCausalFactor(factor.id)}
+                            className="p-2 text-red-600 hover:bg-red-100 rounded"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
+
+                      {factor.isExpanded && (
+                        <div className="space-y-3 mt-4">
+                          {Object.entries(factorCategories).map(([key, cat]) => (
+                            <div key={key} className="bg-white border rounded">
+                              <button 
+                                onClick={() => toggleCausalFactorSection(factor.id, key)} 
+                                className="w-full flex items-center justify-between p-3 hover:bg-gray-50">
+                                <div className="flex items-center gap-3">
+                                  {cat.icon}
+                                  <h4 className="font-semibold text-sm">{cat.title}</h4>
+                                </div>
+                                {factor.expandedSections[key] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                              </button>
+                              {factor.expandedSections[key] && (
+                                <div className="p-3 border-t space-y-3">
+                                  {cat.items.map(item => (
+                                    <div key={item.id} className="border-l-4 border-blue-500 pl-3 py-2">
+                                      <div className="flex justify-between mb-2">
+                                        <div className="flex-1">
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium text-sm">{item.label}</span>
+                                            <Tooltip text={item.tooltip}>
+                                              <HelpCircle className="w-4 h-4 text-blue-500" />
+                                            </Tooltip>
+                                          </div>
+                                          <div className="text-xs text-gray-600 mt-1">IOGP: {item.iogp} | TapRooT®: {item.taproot}</div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                          <button onClick={() => updateHumanFactor(factor.id, key, item.id, 'contributing')} 
+                                            className={`px-3 py-1 text-xs rounded ${
+                                              factor.humanFactors[`${key}_${item.id}`]?.rating === 'contributing' ? 
+                                              'bg-orange-500 text-white' : 'bg-orange-100 text-orange-700'
+                                            }`}>Contributing</button>
+                                          <button onClick={() => updateHumanFactor(factor.id, key, item.id, 'causal')} 
+                                            className={`px-3 py-1 text-xs rounded ${
+                                              factor.humanFactors[`${key}_${item.id}`]?.rating === 'causal' ? 
+                                              'bg-red-500 text-white' : 'bg-red-100 text-red-700'
+                                            }`}>Causal</button>
+                                        </div>
+                                      </div>
+                                      <textarea 
+                                        value={factor.humanFactors[`${key}_${item.id}`]?.notes || ''} 
+                                        className="w-full text-sm border rounded px-3 py-2" 
+                                        rows="2"
+                                        placeholder="Describe how this factor contributed..."
+                                        onChange={(e) => updateFactorNotes(factor.id, key, item.id, e.target.value)} />
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+
+                          <div className="bg-white border rounded p-3">
+                            <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                              <Shield className="w-4 h-4" />
+                              Just Culture Assessment
+                            </h4>
+                            <div className="space-y-3">
+                              <div>
+                                <label className="block text-xs font-medium mb-1">Classification</label>
+                                <select 
+                                  value={factor.justCulture.classification} 
+                                  className="w-full border rounded px-2 py-1 text-sm"
+                                  onChange={(e) => updateJustCulture(factor.id, 'classification', e.target.value)}>
+                                  <option value="">Select...</option>
+                                  <option>Human Error</option>
+                                  <option>At-Risk Behavior</option>
+                                  <option>Reckless Behavior</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1">Justification</label>
+                                <textarea 
+                                  value={factor.justCulture.justification} 
+                                  className="w-full border rounded px-2 py-1 text-sm" 
+                                  rows="2"
+                                  placeholder="Document reasoning..."
+                                  onChange={(e) => updateJustCulture(factor.id, 'justification', e.target.value)} />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1">Response Actions</label>
+                                <textarea 
+                                  value={factor.justCulture.responseActions} 
+                                  className="w-full border rounded px-2 py-1 text-sm" 
+                                  rows="2"
+                                  placeholder="Recommended actions..."
+                                  onChange={(e) => updateJustCulture(factor.id, 'responseActions', e.target.value)} />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="bg-white border rounded p-3">
+                            <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                              <Target className="w-4 h-4" />
+                              HOP (Human & Organizational Performance) Assessment
+                            </h4>
+                            <div className="space-y-3">
+                              <div>
+                                <label className="block text-xs font-medium mb-1">
+                                  Error Precursors
+                                  <Tooltip text="Were there changes, time pressure, distractions, or missing information that made error more likely?">
+                                    <HelpCircle className="w-3 h-3 text-blue-500 inline ml-1" />
+                                  </Tooltip>
+                                </label>
+                                <textarea 
+                                  value={factor.hop.errorPrecursors} 
+                                  className="w-full border rounded px-2 py-1 text-sm" 
+                                  rows="2"
+                                  placeholder="Identify conditions that made errors likely (changes, time pressure, unclear information, etc.)..."
+                                  onChange={(e) => updateHOP(factor.id, 'errorPrecursors', e.target.value)} />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1">
+                                  System Defenses
+                                  <Tooltip text="What barriers existed? Which failed or were bypassed? Could the error have been caught?">
+                                    <HelpCircle className="w-3 h-3 text-blue-500 inline ml-1" />
+                                  </Tooltip>
+                                </label>
+                                <textarea 
+                                  value={factor.hop.systemDefenses} 
+                                  className="w-full border rounded px-2 py-1 text-sm" 
+                                  rows="2"
+                                  placeholder="What defenses/barriers failed or were absent? Could error have been detected earlier?..."
+                                  onChange={(e) => updateHOP(factor.id, 'systemDefenses', e.target.value)} />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1">
+                                  System Vulnerabilities
+                                  <Tooltip text="What systemic weaknesses exist? What assumptions about human performance were flawed?">
+                                    <HelpCircle className="w-3 h-3 text-blue-500 inline ml-1" />
+                                  </Tooltip>
+                                </label>
+                                <textarea 
+                                  value={factor.hop.vulnerabilities} 
+                                  className="w-full border rounded px-2 py-1 text-sm" 
+                                  rows="2"
+                                  placeholder="Identify systemic weaknesses and error-likely situations that could affect others..."
+                                  onChange={(e) => updateHOP(factor.id, 'vulnerabilities', e.target.value)} />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1">
+                                  System Improvements
+                                  <Tooltip text="What system changes will reduce error-likely conditions and strengthen defenses?">
+                                    <HelpCircle className="w-3 h-3 text-blue-500 inline ml-1" />
+                                  </Tooltip>
+                                </label>
+                                <textarea 
+                                  value={factor.hop.recommendations} 
+                                  className="w-full border rounded px-2 py-1 text-sm" 
+                                  rows="2"
+                                  placeholder="Recommend system-level improvements to reduce error precursors and strengthen defenses..."
+                                  onChange={(e) => updateHOP(factor.id, 'recommendations', e.target.value)} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -608,12 +715,31 @@ if (showIncidentList) {
 
                   {factor.justCulture.classification && (
                     <div className="bg-gray-50 p-3 rounded mt-3">
-                      <div><strong>Just Culture Classification:</strong> {factor.justCulture.classification}</div>
+                      <div className="font-semibold mb-2">Just Culture Assessment</div>
+                      <div><strong>Classification:</strong> {factor.justCulture.classification}</div>
                       {factor.justCulture.justification && (
                         <div className="mt-2"><strong>Justification:</strong> {factor.justCulture.justification}</div>
                       )}
                       {factor.justCulture.responseActions && (
                         <div className="mt-2"><strong>Response Actions:</strong> {factor.justCulture.responseActions}</div>
+                      )}
+                    </div>
+                  )}
+
+                  {(factor.hop.errorPrecursors || factor.hop.systemDefenses || factor.hop.vulnerabilities || factor.hop.recommendations) && (
+                    <div className="bg-blue-50 p-3 rounded mt-3">
+                      <div className="font-semibold mb-2">HOP Assessment</div>
+                      {factor.hop.errorPrecursors && (
+                        <div className="mb-2"><strong>Error Precursors:</strong> {factor.hop.errorPrecursors}</div>
+                      )}
+                      {factor.hop.systemDefenses && (
+                        <div className="mb-2"><strong>System Defenses:</strong> {factor.hop.systemDefenses}</div>
+                      )}
+                      {factor.hop.vulnerabilities && (
+                        <div className="mb-2"><strong>System Vulnerabilities:</strong> {factor.hop.vulnerabilities}</div>
+                      )}
+                      {factor.hop.recommendations && (
+                        <div><strong>System Improvements:</strong> {factor.hop.recommendations}</div>
                       )}
                     </div>
                   )}
