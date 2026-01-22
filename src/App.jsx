@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight, CheckCircle, XCircle, Save, Database, List } from 'lucide-react';
 
-// 🔥 REPLACE THESE WITH YOUR SUPABASE VALUES FROM PHASE 1
-const SUPABASE_URL = 'https://qpioxbmjmdecbbyawbfj.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwaW94Ym1qbWRlY2JieWF3YmZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMzE3MTgsImV4cCI6MjA4NDYwNzcxOH0.OaloqP5Z2tY999x3acEjjQgcafYBvzzAnxxxiAaTsjQ';
+// 🔥 REPLACE THESE WITH YOUR SUPABASE VALUES
+const SUPABASE_URL = 'https://epabheqggsudcwsvflat.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwYWJoZXFnZ3N1ZGN3c3ZmbGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4ODQ1NTQsImV4cCI6MjA4NDQ2MDU1NH0.ngStHGMAPfZPduWmE4B3zTZVuIuttYNHmRXDGSEQ5p8';
 
 class SupabaseClient {
   constructor(url, key) {
@@ -248,7 +248,7 @@ export default function App() {
             <AlertCircle className="w-8 h-8 text-blue-600" />
             <div>
               <h1 className="text-3xl font-bold">Human Factors Analysis</h1>
-              <p className="text-sm text-gray-600">TaPRooT® | IOGP 621 | Just Culture</p>
+              <p className="text-sm text-gray-600">IOGP 621 | Just Culture</p>
             </div>
           </div>
           <div className="flex gap-3">
@@ -346,7 +346,7 @@ export default function App() {
                       <div className="flex justify-between mb-2">
                         <div>
                           <div className="font-medium text-sm">{item.label}</div>
-                          <div className="text-xs text-gray-600">IOGP: {item.iogp} | TaPRooT: {item.taproot}</div>
+                          <div className="text-xs text-gray-600">IOGP: {item.iogp} | TapRooT®: {item.taproot}</div>
                         </div>
                         <div className="flex gap-2">
                           <button onClick={() => updateHumanFactor(key, item.id, 'contributing')} 
