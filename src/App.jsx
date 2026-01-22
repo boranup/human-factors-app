@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight, CheckCircle, XCircle, Save, Database, List, HelpCircle } from 'lucide-react';
+import { AlertCircle, Users, Brain, Shield, FileText, ChevronDown, ChevronRight, CheckCircle, XCircle, Save, Database, List, HelpCircle, Info } from 'lucide-react';
 
 // 🔥 REPLACE WITH YOUR ACTUAL SUPABASE CREDENTIALS
 const SUPABASE_URL = 'https://qpioxbmjmdecbbyawbfj.supabase.co';
@@ -88,6 +88,111 @@ const Tooltip = ({ text, children }) => {
         <div className="absolute z-50 w-64 p-2 text-xs bg-gray-900 text-white rounded shadow-lg -top-2 left-6">
           {text}
           <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 -left-1 top-3"></div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Severity Information Modal/Tooltip
+const SeverityInfo = ({ severity }) => {
+  const [show, setShow] = useState(false);
+  
+  const severityData = {
+    'Catastrophic': {
+      level: 5,
+      color: 'bg-red-600',
+      people: 'Multiple Fatalities or Multiple Severe Casualties',
+      environment: 'Reportable to authorities, external clean-up support required, typically >1 month to remediate, irreversible or chronic damage',
+      monetary: '>USD 200MM',
+      reputation: 'International concern resulting in irreparable damage to reputation across full spectrum of stakeholders'
+    },
+    'Major': {
+      level: 4,
+      color: 'bg-orange-600',
+      people: 'Single Fatality or Non-fatal casualty with Permanent Disability',
+      environment: 'Reportable to authorities, external clean-up support required, <1 month to remediate, effects are localised',
+      monetary: 'USD 50MM - USD 200MM',
+      reputation: 'National concern and/or media attention. Possible reputation damage with external stakeholders'
+    },
+    'Significant': {
+      level: 3,
+      color: 'bg-yellow-600',
+      people: 'Serious Injury',
+      environment: 'Small controllable impact, remediation with internal local resources requiring limited time',
+      monetary: 'USD 10MM - USD 50MM',
+      reputation: 'Local concern or disruption and/or local media attention'
+    },
+    'Moderate': {
+      level: 2,
+      color: 'bg-blue-600',
+      people: 'Medical Treatment / Restricted Work Case',
+      environment: 'Minimal impact requiring minimal and simple clean-up',
+      monetary: 'USD 1MM - USD 10MM',
+      reputation: 'Limited impact. Local public awareness but no concern'
+    },
+    'Minor': {
+      level: 1,
+      color: 'bg-green-600',
+      people: 'First Aid',
+      environment: 'Non-damaging material requiring minimal clean-up, contained spill, negligible impact',
+      monetary: '<USD 1MM',
+      reputation: 'No / slight impact'
+    }
+  };
+
+  const info = severityData[severity];
+  if (!info) return null;
+
+  return (
+    <div className="relative inline-block ml-2">
+      <button
+        type="button"
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        className="text-blue-500 hover:text-blue-700"
+      >
+        <Info className="w-4 h-4" />
+      </button>
+      {show && (
+        <div className="absolute z-50 w-96 bg-white border-2 border-gray-300 rounded-lg shadow-xl p-4 left-6 top-0">
+          <div className="mb-3">
+            <div className={`inline-block px-3 py-1 rounded text-white text-sm font-semibold ${info.color}`}>
+              Level {info.level}: {severity}
+            </div>
+          </div>
+          
+          <div className="space-y-3 text-xs">
+            <div>
+              <div className="font-semibold text-gray-700 mb-1 flex items-center gap-1">
+                <Users className="w-3 h-3" /> People:
+              </div>
+              <div className="text-gray-600 pl-4">{info.people}</div>
+            </div>
+            
+            <div>
+              <div className="font-semibold text-gray-700 mb-1 flex items-center gap-1">
+                <Shield className="w-3 h-3" /> Environment:
+              </div>
+              <div className="text-gray-600 pl-4">{info.environment}</div>
+            </div>
+            
+            <div>
+              <div className="font-semibold text-gray-700 mb-1 flex items-center gap-1">
+                <Database className="w-3 h-3" /> Monetary Impact:
+              </div>
+              <div className="text-gray-600 pl-4">{info.monetary}</div>
+            </div>
+            
+            <div>
+              <div className="font-semibold text-gray-700 mb-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" /> Reputation:
+              </div>
+              <div className="text-gray-600 pl-4">{info.reputation}</div>
+            </div>
+          </div>
+          
+          <div className="absolute w-3 h-3 bg-white border-l-2 border-t-2 border-gray-300 transform rotate-45 -left-1.5 top-4"></div>
         </div>
       )}
     </div>
@@ -414,30 +519,37 @@ export default function App() {
                   onChange={(e) => updateField('incidentDetails', 'date', e.target.value)} />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Severity</label>
+                <label className="block text-sm font-medium mb-1 flex items-center">
+                  Severity Level
+                  {data.incidentDetails.severity && <SeverityInfo severity={data.incidentDetails.severity} />}
+                </label>
                 <select value={data.incidentDetails.severity} className="w-full border rounded px-3 py-2"
                   onChange={(e) => updateField('incidentDetails', 'severity', e.target.value)}>
-                  <option value="">Select...</option>
-                  <option>Minor</option>
-                  <option>Significant</option>
-                  <option>Major</option>
-                  <option>Catastrophic</option>
+                  <option value="">Select severity level...</option>
+                  <option value="Minor">Minor (Level 1)</option>
+                  <option value="Moderate">Moderate (Level 2)</option>
+                  <option value="Significant">Significant (Level 3)</option>
+                  <option value="Major">Major (Level 4)</option>
+                  <option value="Catastrophic">Catastrophic (Level 5)</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Location</label>
                 <input type="text" value={data.incidentDetails.location} className="w-full border rounded px-3 py-2"
+                  placeholder="Facility, unit, or area"
                   onChange={(e) => updateField('incidentDetails', 'location', e.target.value)} />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Analyst</label>
                 <input type="text" value={data.incidentDetails.analystName} className="w-full border rounded px-3 py-2"
+                  placeholder="Your name"
                   onChange={(e) => updateField('incidentDetails', 'analystName', e.target.value)} />
               </div>
             </div>
             <div className="mt-4">
               <label className="block text-sm font-medium mb-1">Description</label>
               <textarea value={data.incidentDetails.description} className="w-full border rounded px-3 py-2" rows="3"
+                placeholder="Describe what happened..."
                 onChange={(e) => updateField('incidentDetails', 'description', e.target.value)} />
             </div>
           </div>
@@ -509,11 +621,13 @@ export default function App() {
             <div>
               <label className="block font-medium mb-2">Justification</label>
               <textarea value={data.justCulture.justification} className="w-full border rounded px-3 py-2" rows="4"
+                placeholder="Document the evidence and reasoning for this classification..."
                 onChange={(e) => updateField('justCulture', 'justification', e.target.value)} />
             </div>
             <div>
               <label className="block font-medium mb-2">Response Actions</label>
               <textarea value={data.justCulture.responseActions} className="w-full border rounded px-3 py-2" rows="3"
+                placeholder="List specific actions: coaching sessions, system improvements, procedural changes..."
                 onChange={(e) => updateField('justCulture', 'responseActions', e.target.value)} />
             </div>
           </div>
@@ -526,21 +640,21 @@ export default function App() {
           <div className="space-y-4 text-sm">
             <div><strong>Description:</strong> {data.incidentDetails.description || 'N/A'}</div>
             <div><strong>Date:</strong> {data.incidentDetails.date || 'N/A'}</div>
+            <div><strong>Location:</strong> {data.incidentDetails.location || 'N/A'}</div>
             <div><strong>Severity:</strong> {data.incidentDetails.severity || 'N/A'}</div>
-            <div><strong>Classification:</strong> {data.justCulture.classification || 'N/A'}</div>
-            <div>
-              <strong>Human Factors:</strong>
-              {Object.entries(data.humanFactors).filter(([_, v]) => v.rating).length > 0 ? (
-                <ul className="list-disc ml-5 mt-2">
-                  {Object.entries(data.humanFactors).map(([k, v]) => 
-                    v.rating ? <li key={k}>{k.replace(/_/g, ' ')}: {v.notes} ({v.rating})</li> : null
-                  )}
-                </ul>
-              ) : <span> None identified</span>}
-            </div>
-          </div>
+            <div><strong>Analyst:</strong> {data.incidentDetails.analystName || 'N/A'}</div>
+        <div><strong>Classification:</strong> {data.justCulture.classification || 'N/A'}</div>
+        <div>
+          <strong>Human Factors Identified:</strong>
+          {Object.entries(data.humanFactors).filter(([_, v]) => v.rating).length > 0 ? (
+            <ul className="list-disc ml-5 mt-2">
+              {Object.entries(data.humanFactors).map(([k, v]) => 
+                v.rating ? <li key={k}><strong>{k.replace(/_/g, ' ')}:</strong> {v.notes} <span className="text-gray-600">({v.rating})</span></li> : null
+              )}
+            </ul>
+          ) : <span> None identified</span>}
         </div>
-      )}
+      </div>
     </div>
-  );
-}
+  )}
+</div>
