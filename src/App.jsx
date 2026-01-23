@@ -364,7 +364,7 @@ if (showIncidentList) {
           <div className="flex items-center gap-3">
             <AlertCircle className="w-8 h-8 text-blue-600" />
             <div>
-              <h1 className="text-3xl font-bold">Human Factors Analysis</h1>
+              <h1 className="text-3xl font-bold">HFAT and HOP Tool</h1>
               <p className="text-sm text-gray-600">IOGP 621 | Just Culture | HOP</p>
             </div>
           </div>
@@ -752,3 +752,4 @@ if (showIncidentList) {
     </div>
   );
 }
+
