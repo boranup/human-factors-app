@@ -725,72 +725,77 @@ if (showIncidentList) {
             </div>
 
             {data.causalFactors.length === 0 ? (
-              <div className="text-gray-500 italic">No causal factors analyzed yet.</div>
-            ) : (
-              data.causalFactors.map((factor, index) => (
-                <div key={factor.id} className="border-b pb-4">
-                  <h4 className="font-semibold mb-2 text-blue-900">Causal Factor {index + 1}</h4>
-                  <div className="mb-3">
-                    <strong>Description:</strong> {factor.description || 'Not provided'}
-                  </div>
+  <div className="text-gray-500 italic">No causal factors analyzed yet.</div>
+) : (
+  data.causalFactors.map((factor, index) => (
+    <div key={factor.id} className="border-b pb-4">
+      <h4 className="font-semibold mb-2 text-blue-900">Causal Factor {index + 1}</h4>
+      <div className="mb-3">
+        <strong>Description:</strong> {factor.description || 'Not provided'}
+      </div>
 
-                  <div className="mb-3">
-                    <strong>Human Factors Identified:</strong>
-                    {Object.entries(factor.humanFactors).filter(([_, v]) => v.rating).length > 0 ? (
-                      <ul className="list-disc ml-5 mt-2 space-y-1">
-                        {Object.entries(factor.humanFactors).map(([k, v]) => 
-                          v.rating ? (
-                            <li key={k}>
-                              <strong>{k.replace(/_/g, ' ')}:</strong> {v.notes} 
-                              <span className={`ml-2 px-2 py-0.5 rounded text-xs ${
-                                v.rating === 'causal' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
-                              }`}>
-                                {v.rating}
-                              </span>
-                            </li>
-                          ) : null
-                        )}
-                      </ul>
-                    ) : <span className="text-gray-500"> None identified</span>}
-                  </div>
-
-                  {factor.justCulture.classification && (
-                    <div className="bg-gray-50 p-3 rounded mt-3">
-                      <div className="font-semibold mb-2">Just Culture Assessment</div>
-                      <div><strong>Classification:</strong> {factor.justCulture.classification}</div>
-                      {factor.justCulture.justification && (
-                        <div className="mt-2"><strong>Justification:</strong> {factor.justCulture.justification}</div>
-                      )}
-                      {factor.justCulture.responseActions && (
-                        <div className="mt-2"><strong>Response Actions:</strong> {factor.justCulture.responseActions}</div>
-                      )}
-                    </div>
-                  )}
-
-                  {(factor.hop.errorPrecursors || factor.hop.systemDefenses || factor.hop.vulnerabilities || factor.hop.recommendations) && (
-                    <div className="bg-blue-50 p-3 rounded mt-3">
-                      <div className="font-semibold mb-2">HOP Assessment</div>
-                      {factor.hop.errorPrecursors && (
-                        <div className="mb-2"><strong>Error Precursors:</strong> {factor.hop.errorPrecursors}</div>
-                      )}
-                      {factor.hop.systemDefenses && (
-                        <div className="mb-2"><strong>System Defenses:</strong> {factor.hop.systemDefenses}</div>
-                      )}
-                      {factor.hop.vulnerabilities && (
-                        <div className="mb-2"><strong>System Vulnerabilities:</strong> {factor.hop.vulnerabilities}</div>
-                      )}
-                      {factor.hop.recommendations && (
-                        <div><strong>System Improvements:</strong> {factor.hop.recommendations}</div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))
+      <div className="mb-3">
+        <strong>Human Factors Identified:</strong>
+        {Object.entries(factor.humanFactors).filter(([_, v]) => v.rating).length > 0 ? (
+          <ul className="list-disc ml-5 mt-2 space-y-1">
+            {Object.entries(factor.humanFactors).map(([k, v]) => 
+              v.rating ? (
+                <li key={k}>
+                  <strong>{k.replace(/_/g, ' ')}:</strong> {v.notes} 
+                  <span className={`ml-2 px-2 py-0.5 rounded text-xs ${
+                    v.rating === 'causal' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
+                  }`}>
+                    {v.rating}
+                  </span>
+                </li>
+              ) : null
             )}
+          </ul>
+        ) : <span className="text-gray-500"> None identified</span>}
+      </div>
+
+      <div className="mb-3">
+        <strong>Just Culture Assessment:</strong>
+        {factor.justCulture.classification ? (
+          <div className="bg-gray-50 p-3 rounded mt-2">
+            <div><strong>Classification:</strong> {factor.justCulture.classification}</div>
+            {factor.justCulture.justification && (
+              <div className="mt-2"><strong>Justification:</strong> {factor.justCulture.justification}</div>
+            )}
+            {factor.justCulture.responseActions && (
+              <div className="mt-2"><strong>Response Actions:</strong> {factor.justCulture.responseActions}</div>
+            )}
+          </div>
+        ) : <span className="text-gray-500"> None completed</span>}
+      </div>
+
+      <div className="mb-3">
+        <strong>HOP Assessment:</strong>
+        {(factor.hop.errorPrecursors || factor.hop.systemDefenses || factor.hop.vulnerabilities || factor.hop.recommendations) ? (
+          <div className="bg-blue-50 p-3 rounded mt-2">
+            {factor.hop.errorPrecursors && (
+              <div className="mb-2"><strong>Error Precursors:</strong> {factor.hop.errorPrecursors}</div>
+            )}
+            {factor.hop.systemDefenses && (
+              <div className="mb-2"><strong>System Defenses:</strong> {factor.hop.systemDefenses}</div>
+            )}
+            {factor.hop.vulnerabilities && (
+              <div className="mb-2"><strong>System Vulnerabilities:</strong> {factor.hop.vulnerabilities}</div>
+            )}
+            {factor.hop.recommendations && (
+              <div><strong>System Improvements:</strong> {factor.hop.recommendations}</div>
+            )}
+          </div>
+        ) : <span className="text-gray-500"> None completed</span>}
+      </div>
+    </div>
+  ))
+)}
           </div>
         </div>
       )}
     </div>
   );
 }
+
 
