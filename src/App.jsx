@@ -207,7 +207,9 @@ export default function App() {
         vulnerabilities: '',
         recommendations: ''
       },
-      expandedSections: {}
+      expandedSections: {},
+      showJustCulture: false,
+      showHOP: false
     };
     setData(prev => ({ ...prev, causalFactors: [...prev.causalFactors, newFactor] }));
   };
@@ -303,6 +305,24 @@ export default function App() {
     }));
   };
 
+  const toggleJustCulture = (factorId) => {
+    setData(prev => ({
+      ...prev,
+      causalFactors: prev.causalFactors.map(f => 
+        f.id === factorId ? { ...f, showJustCulture: !f.showJustCulture } : f
+      )
+    }));
+  };
+
+  const toggleHOPSection = (factorId) => {
+    setData(prev => ({
+      ...prev,
+      causalFactors: prev.causalFactors.map(f => 
+        f.id === factorId ? { ...f, showHOP: !f.showHOP } : f
+      )
+    }));
+  };
+
   const factorCategories = {
     individual: { title: "Individual Factors (IOGP 621: 4.2.1)", icon: <Users className="w-5 h-5" />, items: [
       { id: 'fatigue', label: 'Fatigue / Alertness', taproot: 'Human Engineering', iogp: '4.2.1.1', tooltip: 'Consider work schedules, shift patterns, rest periods, and whether the individual was adequately rested and alert for the task.' },
@@ -365,7 +385,7 @@ if (showIncidentList) {
             <AlertCircle className="w-8 h-8 text-blue-600" />
             <div>
               <h1 className="text-3xl font-bold">HFAT and HOP Tool</h1>
-              <p className="text-sm text-gray-600">Human Factors Analysis | Just Culture | Human & Organizational Performance | IOGP 621</p>
+              <p className="text-sm text-gray-600">Human Factors Analysis Tool | IOGP 621 | Just Culture | HOP</p>
             </div>
           </div>
           <div className="flex gap-3">
@@ -553,108 +573,129 @@ if (showIncidentList) {
                             </div>
                           ))}
 
-                          <div className="bg-white border rounded p-3">
-                            <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                              <Shield className="w-4 h-4" />
-                              Just Culture Assessment
-                            </h4>
-                            <div className="space-y-3">
-                              <div>
-                                <label className="block text-xs font-medium mb-1">Classification</label>
-                                <select 
-                                  value={factor.justCulture.classification} 
-                                  className="w-full border rounded px-2 py-1 text-sm"
-                                  onChange={(e) => updateJustCulture(factor.id, 'classification', e.target.value)}>
-                                  <option value="">Select...</option>
-                                  <option>Human Error</option>
-                                  <option>At-Risk Behavior</option>
-                                  <option>Reckless Behavior</option>
-                                </select>
+                          <div className="bg-white border rounded">
+                            <button
+                              onClick={() => toggleJustCulture(factor.id)}
+                              className="w-full flex items-center justify-between p-3 hover:bg-gray-50"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Shield className="w-4 h-4" />
+                                <h4 className="font-semibold text-sm">Just Culture Assessment</h4>
                               </div>
-                              <div>
-                                <label className="block text-xs font-medium mb-1">Justification</label>
-                                <textarea 
-                                  value={factor.justCulture.justification} 
-                                  className="w-full border rounded px-2 py-1 text-sm" 
-                                  rows="2"
-                                  placeholder="Document reasoning..."
-                                  onChange={(e) => updateJustCulture(factor.id, 'justification', e.target.value)} />
+                              {factor.showJustCulture ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                            </button>
+                            {factor.showJustCulture && (
+                              <div className="p-3 border-t space-y-3">
+                                <div>
+                                  <label className="block text-xs font-medium mb-1 flex items-center gap-1">
+                                    Classification
+                                    <Tooltip text="Human Error: Unintended mistake anyone could make in same situation. At-Risk: Risky choice with unrecognized danger. Reckless: Deliberate disregard of known substantial risk.">
+                                      <HelpCircle className="w-3 h-3 text-blue-500" />
+                                    </Tooltip>
+                                  </label>
+                                  <select 
+                                    value={factor.justCulture.classification} 
+                                    className="w-full border rounded px-2 py-1 text-sm"
+                                    onChange={(e) => updateJustCulture(factor.id, 'classification', e.target.value)}>
+                                    <option value="">Select...</option>
+                                    <option value="Human Error">Human Error - Unintended action, system focus</option>
+                                    <option value="At-Risk Behavior">At-Risk Behavior - Coaching & remove risk incentives</option>
+                                    <option value="Reckless Behavior">Reckless Behavior - Conscious disregard of risk</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium mb-1">Justification</label>
+                                  <textarea 
+                                    value={factor.justCulture.justification} 
+                                    className="w-full border rounded px-2 py-1 text-sm" 
+                                    rows="2"
+                                    placeholder="Document reasoning and evidence for this classification..."
+                                    onChange={(e) => updateJustCulture(factor.id, 'justification', e.target.value)} />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium mb-1">Response Actions</label>
+                                  <textarea 
+                                    value={factor.justCulture.responseActions} 
+                                    className="w-full border rounded px-2 py-1 text-sm" 
+                                    rows="2"
+                                    placeholder="Recommended actions based on classification..."
+                                    onChange={(e) => updateJustCulture(factor.id, 'responseActions', e.target.value)} />
+                                </div>
                               </div>
-                              <div>
-                                <label className="block text-xs font-medium mb-1">Response Actions</label>
-                                <textarea 
-                                  value={factor.justCulture.responseActions} 
-                                  className="w-full border rounded px-2 py-1 text-sm" 
-                                  rows="2"
-                                  placeholder="Recommended actions..."
-                                  onChange={(e) => updateJustCulture(factor.id, 'responseActions', e.target.value)} />
-                              </div>
-                            </div>
+                            )}
                           </div>
 
-                          <div className="bg-white border rounded p-3">
-                            <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                              <Target className="w-4 h-4" />
-                              HOP (Human & Organizational Performance) Assessment
-                            </h4>
-                            <div className="space-y-3">
-                              <div>
-                                <label className="block text-xs font-medium mb-1">
-                                  Error Precursors
-                                  <Tooltip text="Were there changes, time pressure, distractions, or missing information that made error more likely?">
-                                    <HelpCircle className="w-3 h-3 text-blue-500 inline ml-1" />
-                                  </Tooltip>
-                                </label>
-                                <textarea 
-                                  value={factor.hop.errorPrecursors} 
-                                  className="w-full border rounded px-2 py-1 text-sm" 
-                                  rows="2"
-                                  placeholder="Identify conditions that made errors likely (changes, time pressure, unclear information, etc.)..."
-                                  onChange={(e) => updateHOP(factor.id, 'errorPrecursors', e.target.value)} />
+                          <div className="bg-white border rounded">
+                            <button
+                              onClick={() => toggleHOPSection(factor.id)}
+                              className="w-full flex items-center justify-between p-3 hover:bg-gray-50"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Target className="w-4 h-4" />
+                                <h4 className="font-semibold text-sm">HOP (Human & Organizational Performance) Assessment</h4>
                               </div>
-                              <div>
-                                <label className="block text-xs font-medium mb-1">
-                                  System Defenses
-                                  <Tooltip text="What barriers existed? Which failed or were bypassed? Could the error have been caught?">
-                                    <HelpCircle className="w-3 h-3 text-blue-500 inline ml-1" />
-                                  </Tooltip>
-                                </label>
-                                <textarea 
-                                  value={factor.hop.systemDefenses} 
-                                  className="w-full border rounded px-2 py-1 text-sm" 
-                                  rows="2"
-                                  placeholder="What defenses/barriers failed or were absent? Could error have been detected earlier?..."
-                                  onChange={(e) => updateHOP(factor.id, 'systemDefenses', e.target.value)} />
+                              {factor.showHOP ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                            </button>
+                            {factor.showHOP && (
+                              <div className="p-3 border-t space-y-3">
+                                <div>
+                                  <label className="block text-xs font-medium mb-1 flex items-center gap-1">
+                                    Error Precursors
+                                    <Tooltip text="Were there changes, time pressure, distractions, or missing information that made error more likely?">
+                                      <HelpCircle className="w-3 h-3 text-blue-500" />
+                                    </Tooltip>
+                                  </label>
+                                  <textarea 
+                                    value={factor.hop.errorPrecursors} 
+                                    className="w-full border rounded px-2 py-1 text-sm" 
+                                    rows="2"
+                                    placeholder="Identify conditions that made errors likely (changes, time pressure, unclear information, etc.)..."
+                                    onChange={(e) => updateHOP(factor.id, 'errorPrecursors', e.target.value)} />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium mb-1 flex items-center gap-1">
+                                    System Defenses
+                                    <Tooltip text="What barriers existed? Which failed or were bypassed? Could the error have been caught?">
+                                      <HelpCircle className="w-3 h-3 text-blue-500" />
+                                    </Tooltip>
+                                  </label>
+                                  <textarea 
+                                    value={factor.hop.systemDefenses} 
+                                    className="w-full border rounded px-2 py-1 text-sm" 
+                                    rows="2"
+                                    placeholder="What defenses/barriers failed or were absent? Could error have been detected earlier?..."
+                                    onChange={(e) => updateHOP(factor.id, 'systemDefenses', e.target.value)} />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium mb-1 flex items-center gap-1">
+                                    System Vulnerabilities
+                                    <Tooltip text="What systemic weaknesses exist? What assumptions about human performance were flawed?">
+                                      <HelpCircle className="w-3 h-3 text-blue-500" />
+                                    </Tooltip>
+                                  </label>
+                                  <textarea 
+                                    value={factor.hop.vulnerabilities} 
+                                    className="w-full border rounded px-2 py-1 text-sm" 
+                                    rows="2"
+                                    placeholder="Identify systemic weaknesses and error-likely situations that could affect others..."
+                                    onChange={(e) => updateHOP(factor.id, 'vulnerabilities', e.target.value)} />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium mb-1 flex items-center gap-1">
+                                    System Improvements
+                                    <Tooltip text="What system changes will reduce error-likely conditions and strengthen defenses?">
+                                      <HelpCircle className="w-3 h-3 text-blue-500" />
+                                    </Tooltip>
+                                  </label>
+                                  <textarea 
+                                    value={factor.hop.recommendations} 
+                                    className="w-full border rounded px-2 py-1 text-sm" 
+                                    rows="2"
+                                    placeholder="Recommend system-level improvements to reduce error precursors and strengthen defenses..."
+                                    onChange={(e) => updateHOP(factor.id, 'recommendations', e.target.value)} />
+                                </div>
                               </div>
-                              <div>
-                                <label className="block text-xs font-medium mb-1">
-                                  System Vulnerabilities
-                                  <Tooltip text="What systemic weaknesses exist? What assumptions about human performance were flawed?">
-                                    <HelpCircle className="w-3 h-3 text-blue-500 inline ml-1" />
-                                  </Tooltip>
-                                </label>
-                                <textarea 
-                                  value={factor.hop.vulnerabilities} 
-                                  className="w-full border rounded px-2 py-1 text-sm" 
-                                  rows="2"
-                                  placeholder="Identify systemic weaknesses and error-likely situations that could affect others..."
-                                  onChange={(e) => updateHOP(factor.id, 'vulnerabilities', e.target.value)} />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium mb-1">
-                                  System Improvements
-                                  <Tooltip text="What system changes will reduce error-likely conditions and strengthen defenses?">
-                                    <HelpCircle className="w-3 h-3 text-blue-500 inline ml-1" />
-                                  </Tooltip>
-                                </label>
-                                <textarea 
-                                  value={factor.hop.recommendations} 
-                                  className="w-full border rounded px-2 py-1 text-sm" 
-                                  rows="2"
-                                  placeholder="Recommend system-level improvements to reduce error precursors and strengthen defenses..."
-                                  onChange={(e) => updateHOP(factor.id, 'recommendations', e.target.value)} />
-                              </div>
-                            </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -752,6 +793,3 @@ if (showIncidentList) {
     </div>
   );
 }
-
-
-
